@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid.js Example</title>
+    <!-- Include Grid.js CSS -->
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <style>
+        .selected-row {
+            background-color: #e0e0e0 !important; /* Ensure the background color is applied */
+        }
+    </style>
+</head>
+<body>
+    <h1>Grid.js Basic Example</h1>
+    <!-- Div where Grid.js table will be rendered -->
+    <div id="wrapper"></div>
+    <button onclick="Save()">Save</button>
+
+    <!-- Include Grid.js JS -->
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+    <script>
+        // Custom sort function for numbers and boolean values
+        function customSort(a, b) {
+            if (typeof a === 'number' && typeof b === 'number') {
+                return a - b;
+            }
+            if (typeof a === 'boolean' && typeof b === 'boolean') {
+                return a === b ? 0 : a ? -1 : 1;
+            }
+            return a.toString().localeCompare(b.toString());
+        }
+
+        // Data for the Grid.js table
+        const tableData = [
+            [1, 'Mark', 25, 'john@example.com', true],
+            [2, 'Nancy', 25, 'n99@gmail.com', false],
+            [3, 'Eoin', 55, 'eo3n@yahoo.com', true],
+            [4, 'Nisen', 60, 'nis900@gmail.com', false]
+        ];
+
+        // Initialize and render the Grid.js table
+        const grid = new gridjs.Grid({
+            columns: [
+                {
+                    name: 'ID',
+                    hidden: true
+                },
+                'Name',
+                {
+                    name: 'Age',
+                    sort: {
+                        compare: customSort
+                    }
+                },
+                'Email',
+                {
+                    name: 'Active',
+                    sort: {
+                        compare: customSort
+                    },
+                    formatter: (cell) => cell ? 'Yes' : 'No'
+                }
+            ],
+            sort: true,
+            data: tableData,
+            resizable: true,
+            // Custom cell renderer to make cells editable on click
+            className: {
+                td: 'editable-cell'
+            }
+        });
+
+        grid.render(document.getElementById("wrapper"));
+
+        // Add event listener for sorting
+        grid.on('sort', function() {
+            console.log('Table sorted');
+            // Handle sorting logic here if needed
+        });
+        grid.on('cellClick', (...args) => {
+            if (event.target.classList.contains('editable-cell')) {
+                const cell = event.target;
+                const row = cell.parentElement;
+                const originalContent = cell.textContent;
+                const rowIndex = row.rowIndex - 1; // Adjust for header row
+                const cellIndex = cell.cellIndex + 1;
+
+                // Remove highlight from any previously selected row
+                document.querySelectorAll('.selected-row').forEach(row => {
+                    row.classList.remove('selected-row');
+                });
+
+                // Highlight the selected row
+                row.classList.add('selected-row');
+
+                cell.contentEditable = true;
+                cell.focus();
+                // QUeremos seleccionar todo el contenido del input para cambiarlo
+                //cell.select();
+
+                cell.addEventListener('blur', function() {
+                    cell.contentEditable = false;
+                    if (cell.textContent !== originalContent) {
+                        // Update the data in the tableData array
+                        tableData[rowIndex][cellIndex] = cell.textContent;
+                        console.log('Cell updated:', cell.textContent);
+                    }
+                }, { once: true });
+            }
+        });
+        
+        function Save() {
+            grid.updateConfig({ data: tableData });
+            grid.forceRender();
+        }
+    </script>
+</body>
+</html>
