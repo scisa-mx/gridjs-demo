@@ -33,7 +33,7 @@
         }
 
         // Data for the Grid.js table
-        const tableData = [
+        var tableData = [
             [1, 'Mark', 25, 'john@example.com', true],
             [2, 'Nancy', 25, 'n99@gmail.com', false],
             [3, 'Eoin', 55, 'eo3n@yahoo.com', true],
@@ -41,7 +41,7 @@
         ];
 
         // Initialize and render the Grid.js table
-        const grid = new gridjs.Grid({
+        var grid = new gridjs.Grid({
             columns: [
                 {
                     name: 'ID',
@@ -60,7 +60,14 @@
                     sort: {
                         compare: customSort
                     },
-                    formatter: (cell) => cell ? 'Yes' : 'No'
+                    formatter: function(cell) { 
+                        if(cell) {
+                            return 'Yes'
+                        } else
+                        {
+                            return 'No'
+                        }
+                    }
                 }
             ],
             sort: true,
@@ -79,16 +86,16 @@
             console.log('Table sorted');
             // Handle sorting logic here if needed
         });
-        grid.on('cellClick', (...args) => {
+        grid.on('cellClick', function() {
             if (event.target.classList.contains('editable-cell')) {
-                const cell = event.target;
-                const row = cell.parentElement;
-                const originalContent = cell.textContent;
-                const rowIndex = row.rowIndex - 1; // Adjust for header row
-                const cellIndex = cell.cellIndex + 1;
+                var cell = event.target;
+                var row = cell.parentElement;
+                var originalContent = cell.textContent;
+                var rowIndex = row.rowIndex - 1; // Adjust for header row
+                var cellIndex = cell.cellIndex + 1;
 
                 // Remove highlight from any previously selected row
-                document.querySelectorAll('.selected-row').forEach(row => {
+                document.querySelectorAll('.selected-row').forEach(function(row) {
                     row.classList.remove('selected-row');
                 });
 
